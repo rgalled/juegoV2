@@ -6,7 +6,7 @@ export const Player = {
     visibility: true,
 }
 import { UIv1 } from "../UIv1.js";
-import { ControlService } from "../services/controlService.js";
+import { ControlService } from "../services/ControlService.js";
 
 export class PlayerHandler {
     #players = [];
@@ -22,9 +22,6 @@ export class PlayerHandler {
         ControlService(this.#yourPlayer);
     }
 
-
-    //Pasa las coordenadas del jugador de la lista con el del usuario
-    //y luego lo elimina
     #setCurrentPosition() {
         this.#players.forEach(playerList => {
             if (playerList.id == this.#yourPlayer.id) {
@@ -48,6 +45,7 @@ export class PlayerHandler {
                 };
             })
         }
+        UIv1.checkPlayerStatus(player);
         UIv1.movePlayer(player);
     }
 

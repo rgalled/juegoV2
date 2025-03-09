@@ -3,6 +3,7 @@ import http from 'http';
 import { GameService } from '../game/GameService';
 import { AnyTxtRecord } from 'dns';
 import { RoomService } from '../room/RoomService';
+import {Data} from './entities/Data';
 
 export class ServerService {
     private io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> | null;
@@ -11,6 +12,17 @@ export class ServerService {
         out: {
             new_player: "NEW_PLAYER"
         }
+    }
+    static do ={
+        "control" : (player : any) => ServerService.doControl(player),
+        "fire" : (idShooted : string) => ServerService.doFire(idShooted),
+    }
+
+    private static doControl (player : any){
+        GameService.getInstance().uploadPlayer(player);
+    }
+    private static doFire (idShooted : string){
+        GameService.getInstance().uploadOtherPlayer(idShooted);
     }
 
     public inputMessage = [
@@ -62,9 +74,9 @@ export class ServerService {
                 console.log('Un cliente se ha desconectado:', socket.id);
                 RoomService.getInstance().removeService(socket.id.toString());
             });
-            socket.on("playerControll", (data) => {
-                console.log("recibe");
-                 GameService.getInstance().uploadPlayer(data);
+
+            socket.on("playerAction", (data : Data) => {
+                ServerService.do[data.type](data.content);
             });
         });
 

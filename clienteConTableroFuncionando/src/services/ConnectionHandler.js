@@ -34,6 +34,6 @@ export const ConnectionHandler = {
         })
     },
     sendMessage : (data)=>{
-        ConnectionHandler.socket.emit("playerControll", data);
+        ConnectionHandler.socket.emit("playerAction", data);
     }
 }

@@ -86,7 +86,6 @@ export class GameService {
     }
 
     public uploadPlayer(data : Player){
-        console.log("a");
         this.games.forEach(game=>{
             game.room.players.forEach(player=>{
                 if(player.id.id == data.id.toString()){
@@ -98,6 +97,32 @@ export class GameService {
                 }
             })
         })
+    }
+
+    public uploadOtherPlayer(idShooted : string){
+        this.games.forEach(game=>{
+            game.room.players.forEach(player=>{
+                if(player.id.id == idShooted){
+                    player.state = PlayerStates.Dead;
+                    player.visibility = false;
+                    ServerService.getInstance().sendMessage(game.room.name, Messages.UPLOAD_PLAYER, {
+                        "id": idShooted,
+                        "x": player.x,
+                        "y": player.y,
+                        "direction": player.direction,
+                        "state": player.state,
+                        "visibility": player.visibility,
+                });
+                }
+            })
+        })
+    }
+
+    private isWin(game : Game){
+        if(game.room.players.filter((player)=>{player.state=PlayerStates.Dead}).length == game.room.players.length-1){
+            game.state = GameStates.ENDED;
+            ServerService.getInstance().sendMessage(game.room.name, Messages.UPLOAD_PLAYER, "Juego terminado");
+        }
     }
 
     private calcMov(pos: Array<Number>, size : number): Array<Number> {

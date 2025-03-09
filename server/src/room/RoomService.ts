@@ -37,7 +37,7 @@ export class RoomService {
         console.log(id)
         this.rooms.forEach(element=>{
             element.players.find(item=>{
-                if (item.id.id == id) element.players.splice(element.players.indexOf(item),1)
+                if (item && item.id && item.id.id == id) element.players.splice(element.players.indexOf(item),1)
             })
         });
     }

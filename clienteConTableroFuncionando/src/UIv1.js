@@ -1,4 +1,12 @@
 import { UI_BUILDER } from "./Ui.js";
+import { Controlls } from "./entities/controlls.js"
+
+export const data = {
+    "data-x": "data-x",
+    "data-y": "data-y",
+    "data-player": "data-player",
+    "data-bush": "data-bush"
+}
 
 export const UIv1 = UI_BUILDER.init();
 
@@ -21,13 +29,14 @@ UIv1.drawBoard = (board) => {
             tile.classList.add("tile");
             if (element === 5) {
                 tile.style.backgroundColor = "green";
+                tile.setAttribute(data["data-bush"], "true");
             }
             if (x > 10) {
                 x = 1;
                 y++;
             }
-            tile.setAttribute("data-x", x);
-            tile.setAttribute("data-y", y);
+            tile.setAttribute(data["data-x"], x);
+            tile.setAttribute(data["data-y"], y);
             x++;
             base.appendChild(tile);
             anime({
@@ -45,19 +54,18 @@ UIv1.drawPlayers = (players) => {
     const element = document.querySelectorAll(".tile");
     element.forEach(tile => {
         players.forEach(player => {
-            if (player.x == tile.getAttribute("data-x") && player.y == tile.getAttribute("data-y")) {
+            if (player.x == tile.getAttribute(data["data-x"]) && player.y == tile.getAttribute(data["data-y"])) {
                 tile.style.backgroundColor = "blue";
                 tile.setAttribute("id", player.id);
-                tile.setAttribute("data-player", "player");
+                tile.setAttribute(data["data-player"], "player");
             }
         })
     })
 }
 
 UIv1.drawControllers = () => {
-
     const base = document.getElementById(UIv1.uiElements.controllers);
-    const allControllers = ["move", "shot", "rotate"];
+    const allControllers = [Controlls.move, Controlls.rotate, Controlls.shot];
     allControllers.forEach(element => {
         const button = document.createElement("button");
         button.setAttribute("id", element);
@@ -67,7 +75,6 @@ UIv1.drawControllers = () => {
 }
 
 UIv1.movePlayer = (player) => {
-    console.log("DRAWING PLAYER")
     console.log(player)
     const element = document.querySelectorAll(".tile");
     const oldTile = document.getElementById(player.id);
@@ -77,21 +84,61 @@ UIv1.movePlayer = (player) => {
         oldTile.style.removeProperty("background-color");
     }
     element.forEach(tile => {
-        if (tile.getAttribute("data-x") == player.x && tile.getAttribute("data-y") == player.y) {
+        if (tile.getAttribute(data["data-x"]) == player.x && tile.getAttribute(data["data-y"]) == player.y) {
             tile.style.backgroundColor = "blue";
             tile.setAttribute("id", player.id);
-            tile.setAttribute("data-player", "player");
+            tile.setAttribute(data["data-player"], "player");
         }
     });
 }
 
 UIv1.checkPlayer = (player) => {
     const tiles = Array.from(document.querySelectorAll(".tile"));
-    if (tiles.find((element) => player.x == element.getAttribute("data-x") && player.y == element.getAttribute("data-y")).hasAttribute("data-player") == undefined ||
-        tiles.find((element) => player.x == element.getAttribute("data-x") && player.y == element.getAttribute("data-y")).hasAttribute("data-player")) {
+    if (tiles.find((element) => player.x == element.getAttribute(data["data-x"]) && player.y == element.getAttribute(data["data-y"])) == undefined ||
+        tiles.find((element) => player.x == element.getAttribute(data["data-x"]) && player.y == element.getAttribute(data["data-y"])).hasAttribute(data["data-player"]) == undefined ||
+        tiles.find((element) => player.x == element.getAttribute(data["data-x"]) && player.y == element.getAttribute(data["data-y"])).hasAttribute(data["data-player"])) {
         return true;
     } else {
         return false;
+    }
+}
+
+UIv1.checkVisibility = (player) => {
+    const tiles = Array.from(document.querySelectorAll(".tile"));
+    if (tiles.find((element) => player.x == element.getAttribute(data["data-x"]) && player.y == element.getAttribute(data["data-y"])).hasAttribute(data["data-bush"]) == undefined) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+UIv1.checkFire = (x, y) => {
+    const tiles = Array.from(document.querySelectorAll(".tile"));
+    let idShooted = ""
+    tiles.forEach(tile => {
+        if ((x == tile.getAttribute(data["data-x"]) && y == tile.getAttribute(data["data-y"]) == undefined )||
+            (x == tile.getAttribute(data["data-x"]) && y == tile.getAttribute(data["data-y"]) && tile.hasAttribute(data["data-player"]))){
+            idShooted =  tile.getAttribute("id");
+        }
+    });
+    return idShooted;
+}
+
+UIv1.checkPlayerStatus = (player) => {
+    console.log(player)
+    const element = document.querySelectorAll(".tile");
+    if (player.state == "Dead") {
+        element.forEach(tile => {
+            if (tile.getAttribute(data["data-x"]) == player.x && tile.getAttribute(data["data-y"]) == player.y) {
+                if(tile.hasAttribute(data["data-bush"])){
+                    tile.style.backgroundColor = "green";
+                } else{
+                    tile.style.backgroundColor = "none";
+                    tile.removeAttribute("id");
+                    tile.removeAttribute(data["data-player"]);
+                }
+            }
+        });
     }
 }
 
